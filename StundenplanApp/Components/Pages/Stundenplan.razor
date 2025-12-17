@@ -1,0 +1,63 @@
+﻿@page "/stundenplan"
+@using StundenplanApp.Data
+@inject StundenplanDbContext Db
+
+<h3>Stundenplan (Notlösung)</h3>
+
+<button class="btn btn-primary mb-3" @onclick="Add">Eintrag hinzufügen</button>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Datum</th>
+            <th>Uhrzeit</th>
+            <th>Klasse</th>
+            <th>Lehrer</th>
+            <th>Zimmer</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in list)
+        {
+            <tr>
+                <td>@s.StundenplanId</td>
+                <td>@s.Datum</td>
+                <td>@s.Uhrzeit</td>
+                <td>@s.KlasseId</td>
+                <td>@s.LehrerId</td>
+                <td>@s.SchulzimmerId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    List<Stundenplan> list = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    async Task Load()
+    {
+        list = await Db.Stundenplans.ToListAsync();
+    }
+
+    async Task Add()
+    {
+        var neu = new Stundenplan
+        {
+            Datum = DateOnly.FromDateTime(DateTime.Today),
+            Uhrzeit = new TimeOnly(8, 0),
+            KlasseId = 1,
+            LehrerId = 1,
+            SchulzimmerId = 1
+        };
+
+        Db.Stundenplans.Add(neu);
+        await Db.SaveChangesAsync();
+        await Load();
+    }
+}
